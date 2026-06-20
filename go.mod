@@ -1,4 +1,4 @@
-module github.com/libdns/wedos
+module github.com/omichalek/libdns-wedos
 
 go 1.25.5
 
