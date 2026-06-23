@@ -48,6 +48,14 @@ func normalizeNameToAPI(apiName string) (string, error) {
 	return apiName, nil
 }
 
+// normalizeZone canonicalizes the zone name:
+// libdns callers pass zones as fully-qualified domain names with a trailing dot (e.g. "mydomain.com.")
+// but the WEDOS API rejects the trailing dot ("Invalid or unsupported domain name format")
+// call this to strip the dot before placing the zone into any request payload
+func normalizeZone(zone string) string {
+	return strings.TrimSuffix(zone, ".")
+}
+
 // toLibDNSRecord converts a rowItem (response from WEDOS API) into a libdns.Record
 func toLibDNSRecord(row rowItem) (libdns.Record, error) {
 	var record libdns.Record
@@ -143,7 +151,7 @@ func toLibDNSRecord(row rowItem) (libdns.Record, error) {
 
 // toWedosDNSRecord converts a libdns.Record to a JSON format represented by a map for the WEDOS API
 func toWedosDNSRecord(record libdns.Record, zone string) (map[string]string, error) {
-	zone = strings.TrimSuffix(zone, ".")
+	zone = normalizeZone(zone)
 	name, err := normalizeNameToAPI(record.RR().Name)
 	if err != nil {
 		return nil, fmt.Errorf("toWedosDNSRecord: failed to normalize name: %v", err)
